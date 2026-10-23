@@ -1,0 +1,6 @@
+username=
+password=
+nic=eth0
+if-impl=sockraw
+daemonize=0
+pid-file=/var/run/minieap-sysu.pid

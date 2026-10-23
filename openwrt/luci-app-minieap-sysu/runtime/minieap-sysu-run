@@ -1,0 +1,6 @@
+#!/bin/sh
+# Wait for the Ethernet link at boot before sending EAPOL-Start.
+while [ "$(cat /sys/class/net/eth0/carrier 2>/dev/null)" != 1 ]; do
+    sleep 2
+done
+exec /usr/sbin/minieap-sysu --conf-file /etc/minieap-sysu.conf -b 0

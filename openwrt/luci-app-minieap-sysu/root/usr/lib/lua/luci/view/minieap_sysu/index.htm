@@ -1,0 +1,36 @@
+<%+header%>
+<% local esc = require("luci.util").pcdata
+   local url = require("luci.dispatcher").build_url("admin", "services", "minieap_sysu") %>
+<div class="cbi-map">
+  <h2>校园网认证</h2>
+  <div class="cbi-map-descr">中山大学东校园 · 至善园 · MiniEAP</div>
+  <% if message then %><div class="alert-message success"><%=esc(message)%></div><% end %>
+  <% if error_message or state.error then %><div class="alert-message warning"><%=esc(error_message or state.error)%></div><% end %>
+  <fieldset class="cbi-section">
+    <legend>当前状态</legend>
+    <p>认证服务：<strong><%=state.running and "运行中" or "未运行"%></strong>　开机启动：<%=state.enabled and "已开启" or "未开启"%></p>
+    <p>校园网网卡：<%=esc(state.nic)%>　网线连接：<%=state.carrier and "已连接" or "未检测到连接"%></p>
+    <p>WAN 地址：<%=esc(state.address ~= "" and state.address or "尚未取得 IPv4 地址")%>　WAN 状态：<%=state.wan_up and "已连接" or "未连接"%></p>
+    <p>服务运行不代表认证成功。请结合系统日志中的“认证成功”和实际网页访问判断。</p>
+    <form method="post" action="<%=url%>/update">
+      <input type="hidden" name="token" value="<%=esc(token)%>" />
+      <button class="cbi-button cbi-button-apply" type="submit" name="action" value="start">启动认证</button>
+      <button class="cbi-button cbi-button-action" type="submit" name="action" value="restart">重新认证</button>
+      <button class="cbi-button cbi-button-reset" type="submit" name="action" value="stop">停止认证</button>
+      <a class="cbi-button" href="<%=url%>">刷新状态</a>
+    </form>
+  </fieldset>
+  <form method="post" action="<%=url%>/update" autocomplete="off">
+    <input type="hidden" name="token" value="<%=esc(token)%>" />
+    <input type="hidden" name="action" value="save" />
+    <fieldset class="cbi-section">
+      <legend>账号设置</legend>
+      <div class="cbi-value"><label class="cbi-value-title" for="campus-user">NetID</label><div class="cbi-value-field"><input id="campus-user" name="username" type="text" maxlength="64" required="required" value="<%=esc(state.username)%>" /></div></div>
+      <div class="cbi-value"><label class="cbi-value-title" for="campus-password">校园网密码</label><div class="cbi-value-field"><input id="campus-password" name="password" type="password" maxlength="64" autocomplete="new-password" value="" placeholder="留空保留原密码" /><div class="cbi-value-description">保存后不会显示已有密码。更换账号时请同时填写对应密码。</div></div></div>
+      <div class="cbi-value"><label class="cbi-value-title" for="campus-enabled">开机自动认证</label><div class="cbi-value-field"><input id="campus-enabled" name="enabled" type="checkbox" value="1" <%=state.enabled and 'checked="checked"' or ''%> /></div></div>
+    </fieldset>
+    <div class="cbi-page-actions"><button class="cbi-button cbi-button-save" type="submit">保存设置</button></div>
+    <p>保存设置不会立即重启认证；需要立即应用时，保存后点击“重新认证”。</p>
+  </form>
+</div>
+<%+footer%>
